@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "soc-guardian-openenv"
+version = "0.1.0"
+description = "OpenEnv-style SOC support benchmark for early breach detection under cost and latency constraints."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115.0,<1.0.0",
+  "httpx>=0.27.0,<1.0.0",
+  "openai>=2.7.2,<3.0.0",
+  "openenv-core>=0.2.0,<1.0.0",
+  "pydantic>=2.8.0,<3.0.0",
+  "pyyaml>=6.0.0,<7.0.0",
+  "uvicorn>=0.30.0,<1.0.0",
+]
+
+[project.scripts]
+server = "server.app:main"
+
+[tool.setuptools]
+py-modules = [
+  "client",
+  "models",
+  "simulator",
+  "demo",
+]
+
+[tool.setuptools.packages.find]
+include = ["server"]
