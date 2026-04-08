@@ -19,6 +19,30 @@ app = FastAPI(title="SOC Guardian OpenEnv", version="0.1.0")
 service = EnvironmentService()
 FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 
+TASK_METADATA = [
+    {
+        "id": "helpdesk_takeover",
+        "name": "helpdesk_takeover",
+        "description": "Social-engineering-led account takeover with identity mismatch and suspicious password reset signals.",
+        "grader": {"type": "deterministic", "enabled": True, "score_range": [0.0, 1.0]},
+        "has_grader": True,
+    },
+    {
+        "id": "privilege_spiral",
+        "name": "privilege_spiral",
+        "description": "Compromised user begins reaching for admin tooling while benign alert noise competes for attention.",
+        "grader": {"type": "deterministic", "enabled": True, "score_range": [0.0, 1.0]},
+        "has_grader": True,
+    },
+    {
+        "id": "lateral_breach",
+        "name": "lateral_breach",
+        "description": "Multi-stage intrusion advances to lateral movement with cross-system traffic and a decoy alert.",
+        "grader": {"type": "deterministic", "enabled": True, "score_range": [0.0, 1.0]},
+        "has_grader": True,
+    },
+]
+
 
 class ResetRequest(BaseModel):
     task_name: str = Field(default="helpdesk_takeover")
@@ -558,10 +582,29 @@ async def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/metadata")
+@app.get("/api/metadata")
+async def metadata() -> dict[str, object]:
+    return {
+        "name": "soc-guardian-openenv",
+        "description": (
+            "SOC incident triage and early breach detection benchmark under "
+            "compute and latency constraints."
+        ),
+        "version": "0.1.0",
+        "tasks": TASK_METADATA,
+        "tasks_with_graders": 3,
+    }
+
+
 @app.get("/tasks")
 @app.get("/api/tasks")
-async def list_tasks() -> dict[str, list[str]]:
-    return {"tasks": list(TASKS.keys())}
+async def list_tasks() -> dict[str, object]:
+    return {
+        "tasks": TASK_METADATA,
+        "task_names": list(TASKS.keys()),
+        "tasks_with_graders": 3,
+    }
 
 
 @app.post("/demo/query", response_model=DemoSocResponse)
@@ -575,9 +618,10 @@ async def demo_query(payload: DemoSocQueryRequest) -> DemoSocResponse:
 
 @app.post("/reset", response_model=SocStepResult)
 @app.post("/api/reset", response_model=SocStepResult)
-async def reset_environment(payload: ResetRequest) -> SocStepResult:
+async def reset_environment(payload: ResetRequest | None = None) -> SocStepResult:
     try:
-        return await service.reset(task_name=payload.task_name, seed=payload.seed)
+        request = payload or ResetRequest()
+        return await service.reset(task_name=request.task_name, seed=request.seed)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 

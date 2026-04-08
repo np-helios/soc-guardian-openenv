@@ -1,13 +1,33 @@
+spec_version: 1
 name: soc-guardian-openenv
 version: 0.1.0
+type: space
+runtime: fastapi
+app: server.app:app
+port: 7860
 entrypoint: server.app:app
 description: >
   An OpenEnv-style benchmark for SOC incident triage and early breach detection
   under compute and latency constraints.
 tasks:
-  - helpdesk_takeover
-  - privilege_spiral
-  - lateral_breach
+  - id: helpdesk_takeover
+    description: Social-engineering-led account takeover with identity mismatch and suspicious password reset signals.
+    grader:
+      type: deterministic
+      enabled: true
+      score_range: [0.0, 1.0]
+  - id: privilege_spiral
+    description: Compromised user begins reaching for admin tooling while benign alert noise competes for attention.
+    grader:
+      type: deterministic
+      enabled: true
+      score_range: [0.0, 1.0]
+  - id: lateral_breach
+    description: Multi-stage intrusion advances to lateral movement with cross-system traffic and a decoy alert.
+    grader:
+      type: deterministic
+      enabled: true
+      score_range: [0.0, 1.0]
 action_model: SocAction
 observation_model: SocObservation
 state_model: SocState
@@ -15,3 +35,4 @@ metadata:
   domain: security-operations
   novelty: cost-aware-soc-routing
   reward_range: "-2.0 to 2.0"
+  tasks_with_graders: 3
