@@ -124,6 +124,19 @@ export interface DemoSocResponse {
   estimated_latency_ms: number;
 }
 
+export interface TaskDescriptor {
+  id: string;
+  name?: string;
+  description?: string;
+  difficulty?: string;
+  has_grader?: boolean;
+  grader?: {
+    type?: string;
+    enabled?: boolean;
+    score_range?: [number, number];
+  };
+}
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api";
 
 async function jsonFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -143,8 +156,16 @@ export async function healthCheck(): Promise<{ status: string }> {
   return jsonFetch<{ status: string }>("/health");
 }
 
-export async function listTasks(): Promise<{ tasks: string[] }> {
-  return jsonFetch<{ tasks: string[] }>("/tasks");
+export async function listTasks(): Promise<{
+  tasks: Array<string | TaskDescriptor>;
+  task_names?: string[];
+  tasks_with_graders?: number;
+}> {
+  return jsonFetch<{
+    tasks: Array<string | TaskDescriptor>;
+    task_names?: string[];
+    tasks_with_graders?: number;
+  }>("/tasks");
 }
 
 export async function resetScenario(taskName: string, seed: number): Promise<SocStepResult> {

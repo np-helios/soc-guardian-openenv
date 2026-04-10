@@ -14,6 +14,7 @@ import {
   resetScenario,
   sendStep,
   type DemoSocResponse,
+  type TaskDescriptor,
   type ResponseAction,
   type Severity,
   type SocActionPayload,
@@ -49,10 +50,13 @@ const initialAction: SocActionPayload = {
   reasoning_note: null,
 };
 
-const formatTask = (task: string) => task.replaceAll("_", " ");
+const getTaskId = (task: string | TaskDescriptor) =>
+  typeof task === "string" ? task : task.id || task.name || "";
+
+const formatTask = (task: string | TaskDescriptor) => getTaskId(task).replaceAll("_", " ");
 
 const Index = () => {
-  const [tasks, setTasks] = useState<string[]>([]);
+  const [tasks, setTasks] = useState<Array<string | TaskDescriptor>>([]);
   const [selectedTask, setSelectedTask] = useState("helpdesk_takeover");
   const [seed, setSeed] = useState(7);
   const [action, setAction] = useState<SocActionPayload>(initialAction);
@@ -73,7 +77,7 @@ const Index = () => {
         setApiOnline(true);
         const taskPayload = await listTasks();
         setTasks(taskPayload.tasks);
-        if (taskPayload.tasks.length > 0) setSelectedTask(taskPayload.tasks[0]);
+        if (taskPayload.tasks.length > 0) setSelectedTask(getTaskId(taskPayload.tasks[0]));
         setStatusMessage("Backend connected. Reset a scenario or route a demo query.");
         setStatusError(false);
       } catch (error) {
@@ -228,7 +232,7 @@ const Index = () => {
                   className="mt-1 w-full rounded bg-secondary border border-border px-3 py-2 text-sm"
                 >
                   {tasks.map((task) => (
-                    <option key={task} value={task}>
+                    <option key={getTaskId(task)} value={getTaskId(task)}>
                       {formatTask(task)}
                     </option>
                   ))}
