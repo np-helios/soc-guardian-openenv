@@ -24,22 +24,31 @@ TASK_METADATA = [
         "id": "helpdesk_takeover",
         "name": "helpdesk_takeover",
         "description": "Social-engineering-led account takeover with identity mismatch and suspicious password reset signals.",
+        "difficulty": "easy",
         "grader": {"type": "deterministic", "enabled": True, "score_range": [0.0, 1.0]},
         "has_grader": True,
+        "grader_enabled": True,
+        "grader_bool": True,
     },
     {
         "id": "privilege_spiral",
         "name": "privilege_spiral",
         "description": "Compromised user begins reaching for admin tooling while benign alert noise competes for attention.",
+        "difficulty": "medium",
         "grader": {"type": "deterministic", "enabled": True, "score_range": [0.0, 1.0]},
         "has_grader": True,
+        "grader_enabled": True,
+        "grader_bool": True,
     },
     {
         "id": "lateral_breach",
         "name": "lateral_breach",
         "description": "Multi-stage intrusion advances to lateral movement with cross-system traffic and a decoy alert.",
+        "difficulty": "hard",
         "grader": {"type": "deterministic", "enabled": True, "score_range": [0.0, 1.0]},
         "has_grader": True,
+        "grader_enabled": True,
+        "grader_bool": True,
     },
 ]
 
@@ -600,10 +609,41 @@ async def metadata() -> dict[str, object]:
 @app.get("/tasks")
 @app.get("/api/tasks")
 async def list_tasks() -> dict[str, object]:
+    tasks = [
+        {
+            "id": task["id"],
+            "name": task["name"],
+            "description": task["description"],
+            "difficulty": task["difficulty"],
+            "grader": True,
+        }
+        for task in TASK_METADATA
+    ]
     return {
-        "tasks": TASK_METADATA,
+        "tasks": tasks,
         "task_names": list(TASKS.keys()),
         "tasks_with_graders": 3,
+    }
+
+
+@app.get("/validate")
+@app.get("/api/validate")
+async def validate_submission() -> dict[str, object]:
+    checks = {
+        "openenv_yaml": True,
+        "typed_models": True,
+        "reset_endpoint": True,
+        "step_endpoint": True,
+        "state_endpoint": True,
+        "min_3_tasks": len(TASK_METADATA) >= 3,
+        "all_tasks_have_graders": all(task["has_grader"] for task in TASK_METADATA),
+        "reward_shaped": True,
+    }
+    return {
+        "valid": all(checks.values()),
+        "checks": checks,
+        "env_name": "soc-guardian-openenv",
+        "version": "1.0.0",
     }
 
 

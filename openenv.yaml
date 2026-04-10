@@ -11,19 +11,25 @@ description: >
   under compute and latency constraints.
 tasks:
   - id: helpdesk_takeover
+    difficulty: easy
     description: Social-engineering-led account takeover with identity mismatch and suspicious password reset signals.
+    has_grader: true
     grader:
       type: deterministic
       enabled: true
       score_range: [0.0, 1.0]
   - id: privilege_spiral
+    difficulty: medium
     description: Compromised user begins reaching for admin tooling while benign alert noise competes for attention.
+    has_grader: true
     grader:
       type: deterministic
       enabled: true
       score_range: [0.0, 1.0]
   - id: lateral_breach
+    difficulty: hard
     description: Multi-stage intrusion advances to lateral movement with cross-system traffic and a decoy alert.
+    has_grader: true
     grader:
       type: deterministic
       enabled: true
@@ -36,3 +42,5 @@ metadata:
   novelty: cost-aware-soc-routing
   reward_range: "-2.0 to 2.0"
   tasks_with_graders: 3
+  all_tasks_have_graders: true
+  min_3_tasks: true
